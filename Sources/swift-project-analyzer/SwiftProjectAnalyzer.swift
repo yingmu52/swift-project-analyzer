@@ -1,6 +1,7 @@
 import Foundation
 import SwiftSyntax
 import SwiftSemantics
+import struct SwiftSemantics.Protocol
 
 final class SwiftProjectAnalyzer {
     private let projectDirectory: String
@@ -24,9 +25,8 @@ final class SwiftProjectAnalyzer {
          print(allEnums.map { $0.name })
          print(allStructs.map { $0.name })
          print(allProtocolNames)
+         print(allProtocols.map { $0.name })
         */
-//        print(entries)
-        entries.forEach { print($0) }
     }
 }
 
@@ -71,12 +71,11 @@ extension SwiftProjectAnalyzer {
             .filter { !$0.collector.classes.isEmpty }
             .flatMap { $0.collector.classes }
     }
-    
-    var allProtocolNames: [String] { // can't use [Protocol] or [SwiftSemantics.Protocol] :(
+        
+    var allProtocols: [Protocol] {
         self.collectorWrappers
             .filter { !$0.collector.protocols.isEmpty }
             .flatMap { $0.collector.protocols }
-            .map { $0.name }
     }
     
     var allStructs: [Structure] {
