@@ -5,36 +5,29 @@ import SwiftSemantics
 final class SwiftProjectAnalyzer {
     private let projectDirectory: String
     private let ignoreFolders: [String]
+    private var collectorWrappers = Set<DeclarationCollectorWrapper>()
     
     init(projectDirectory: String, ignoreFolders: [String]) {
         self.projectDirectory = projectDirectory
         self.ignoreFolders = ignoreFolders
     }
     
-    func start() {
+    func start() throws {
         for url in self.subPaths {
-            do {
-                let collector = try parseFile(path: self.getAbsolutePath(url))
-                for v in collector.variables {
-                    print(v)
-                }
-            } catch {
-                print("fail parsing \(url)", error)
-            }
+            let collector = try parseFile(path: self.getAbsolutePath(url))
+            let collectorWrapper = DeclarationCollectorWrapper(url: url, collector: collector)
+            self.collectorWrappers.insert(collectorWrapper)
         }
+
+        print(allClasses.map { $0.name })
     }
 }
 
 extension SwiftProjectAnalyzer {
-    func parseFile(path: String) throws -> DeclarationCollector {
-        let url = URL(fileURLWithPath: path)
-        let source = try SyntaxParser.parse(url)
-        
-        let collector = DeclarationCollector()
-        let tree = try SyntaxParser.parse(source: source.description)
-        collector.walk(tree)
-        
-        return collector
+    var allClasses: [Class] {
+        self.collectorWrappers
+            .filter { !$0.collector.classes.isEmpty }
+            .flatMap { $0.collector.classes }
     }
 }
 
@@ -61,5 +54,16 @@ private extension SwiftProjectAnalyzer {
     
     func getAbsolutePath(_ path: String) -> String {
         "\(self.projectDirectory)/\(path)"
+    }
+    
+    func parseFile(path: String) throws -> DeclarationCollector {
+        let url = URL(fileURLWithPath: path)
+        let source = try SyntaxParser.parse(url)
+        
+        let collector = DeclarationCollector()
+        let tree = try SyntaxParser.parse(source: source.description)
+        collector.walk(tree)
+        
+        return collector
     }
 }

@@ -5,4 +5,9 @@ let ignoreFolders: [String] = [
 ]
 
 let analyzer = SwiftProjectAnalyzer(projectDirectory: projectDir, ignoreFolders: ignoreFolders)
-analyzer.start()
+
+do {
+    try analyzer.start()
+} catch {
+    print(error)
+}
