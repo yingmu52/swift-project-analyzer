@@ -1,4 +1,6 @@
 import Foundation
+import SwiftSyntax
+import SwiftSemantics
 
 final class SwiftProjectAnalyzer {
     private let projectDirectory: String
@@ -11,8 +13,28 @@ final class SwiftProjectAnalyzer {
     
     func start() {
         for url in self.subPaths {
-            print(url)
+            do {
+                let collector = try parseFile(path: self.getAbsolutePath(url))
+                for v in collector.variables {
+                    print(v)
+                }
+            } catch {
+                print("fail parsing \(url)", error)
+            }
         }
+    }
+}
+
+extension SwiftProjectAnalyzer {
+    func parseFile(path: String) throws -> DeclarationCollector {
+        let url = URL(fileURLWithPath: path)
+        let source = try SyntaxParser.parse(url)
+        
+        let collector = DeclarationCollector()
+        let tree = try SyntaxParser.parse(source: source.description)
+        collector.walk(tree)
+        
+        return collector
     }
 }
 
@@ -35,5 +57,9 @@ private extension SwiftProjectAnalyzer {
     
     func depthOfDirectory(lhs: String, rhs: String) -> Bool {
         lhs.components(separatedBy: "/").count < rhs.components(separatedBy: "/").count
+    }
+    
+    func getAbsolutePath(_ path: String) -> String {
+        "\(self.projectDirectory)/\(path)"
     }
 }
