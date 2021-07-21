@@ -10,31 +10,30 @@ final class SwiftProjectAnalyzer {
     }
     
     func start() {
-        for url in self.subPaths where url.hasSuffix(".swift") {
-            // skip ignore folders
-            var shouldIgnoreUrl = false
-            for folder in self.ignoreFolders where url.hasPrefix(folder) {
-                shouldIgnoreUrl = true
-                break
-            }
-            if shouldIgnoreUrl {
-                continue
-            }
-            
-            //
+        for url in self.subPaths {
             print(url)
         }
     }
-    
-    private var subPaths: [String] {
+}
+
+private extension SwiftProjectAnalyzer {
+    var subPaths: [String] {
         guard let urls = FileManager.default.subpaths(atPath: self.projectDirectory) else {
             return []
         }
-        return urls.sorted(by: { self.depth(of: $0) < self.depth(of: $1) })
+        return urls
+            .filter { isValidPath($0) }
+            .sorted(by: depthOfDirectory)
     }
     
-    private func depth(of directory: String) -> Int {
-        directory.components(separatedBy: "/").count
+    func isValidPath(_ path: String) -> Bool {
+        for ignoreFolder in self.ignoreFolders where path.hasPrefix(ignoreFolder) {
+            return false
+        }
+        return path.hasSuffix(".swift")
+    }
+    
+    func depthOfDirectory(lhs: String, rhs: String) -> Bool {
+        lhs.components(separatedBy: "/").count < rhs.components(separatedBy: "/").count
     }
 }
-
