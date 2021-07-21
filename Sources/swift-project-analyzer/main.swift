@@ -1,21 +1,22 @@
 import SwiftSyntax
+import SwiftSemantics
+import Foundation
 
-let structKeyword = SyntaxFactory.makeStructKeyword(trailingTrivia: .spaces(1))
+func parseFile(path: String) throws -> DeclarationCollector {
+    let url = URL(fileURLWithPath: path)
+    let source = try SyntaxParser.parse(url)
 
-let identifier = SyntaxFactory.makeIdentifier("Example", trailingTrivia: .spaces(1))
+    let collector = DeclarationCollector()
+    let tree = try SyntaxParser.parse(source: source.description)
+    collector.walk(tree)
 
-let leftBrace = SyntaxFactory.makeLeftBraceToken()
-let rightBrace = SyntaxFactory.makeRightBraceToken(leadingTrivia: .newlines(1))
-let members = MemberDeclBlockSyntax { builder in
-    builder.useLeftBrace(leftBrace)
-    builder.useRightBrace(rightBrace)
+    return collector
 }
 
-let structureDeclaration = StructDeclSyntax { builder in
-    builder.useStructKeyword(structKeyword)
-    builder.useIdentifier(identifier)
-    builder.useMembers(members)
-}
 
-print(structureDeclaration)
-print("OK")
+let projectDir: String = ""
+let ignoreFolders: [String] = [
+]
+
+let analyzer = SwiftProjectAnalyzer(projectDirectory: projectDir, ignoreFolders: ignoreFolders)
+analyzer.start()

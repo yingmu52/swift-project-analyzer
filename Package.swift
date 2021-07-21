@@ -6,10 +6,15 @@ import PackageDescription
 let package = Package(
     name: "swift-project-analyzer",
     dependencies: [
-        .package(name: "SwiftSyntax", url: "https://github.com/apple/swift-syntax.git", .revision("swift-DEVELOPMENT-SNAPSHOT-2019-02-26")),
+      
+        .package(
+            name: "SwiftSemantics",
+            url: "https://github.com/SwiftDocOrg/SwiftSemantics",
+            .branch("main")
+        ),
     ],
     targets: [
-        .target(name: "swift-project-analyzer", dependencies: ["SwiftSyntax"]),
+        .target(name: "swift-project-analyzer", dependencies: ["SwiftSemantics"]),
         .testTarget( name: "swift-project-analyzerTests", dependencies: ["swift-project-analyzer"]),
     ]
 )
