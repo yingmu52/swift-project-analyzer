@@ -6,27 +6,27 @@ import struct SwiftSemantics.Protocol
 final class SwiftProjectAnalyzer {
     private let projectDirectory: String
     private let ignoreFolders: [String]
-    private var collectorWrappers = Set<DeclarationCollectorWrapper>()
+    private var visitorWrappers = Set<SPASyntaxVisitorWrapper>()
     
     init(projectDirectory: String, ignoreFolders: [String]) {
         self.projectDirectory = projectDirectory
         self.ignoreFolders = ignoreFolders
     }
-    
+
     func start() throws {
         for url in self.subPaths {
-            let collector = try parseFile(path: self.getAbsolutePath(url))
-            let collectorWrapper = DeclarationCollectorWrapper(url: url, collector: collector)
-            self.collectorWrappers.insert(collectorWrapper)
+            let visitor = try parseFile(path: self.getAbsolutePath(url))
+            let wrapper = SPASyntaxVisitorWrapper(url: url, visitor: visitor)
+            self.visitorWrappers.insert(wrapper)
         }
-        
         /*
          print(allClasses.map { $0.name })
          print(allEnums.map { $0.name })
          print(allStructs.map { $0.name })
          print(allProtocolNames)
          print(allProtocols.map { $0.name })
-        */
+         
+         */
     }
 }
 
@@ -34,60 +34,66 @@ extension SwiftProjectAnalyzer {
     
     var entries: [String] {
         var indegreeMap = [String: Int]()
-        for aClass in self.allClasses {
-            indegreeMap[aClass.name] = 0
-        }
-        for aStruct in self.allStructs {
-            indegreeMap[aStruct.name] = 0
-        }
+        self.allClasses.forEach { indegreeMap[$0.name] = 0 }
+        self.allStructs.forEach { indegreeMap[$0.name] = 0 }
+        self.allEnums.forEach { indegreeMap[$0.name] = 0 }
+        self.typealiases.forEach { indegreeMap[$0.name] = 0 }
+        self.allProtocols.forEach { indegreeMap[$0.name] = 0 }
         
-        for aEnum in self.allEnums {
-            indegreeMap[aEnum.name] = 0
-        }
-        
-
         // check class, struct, enum,
-        for wrapper in self.collectorWrappers {
-            for variable in wrapper.collector.variables {
-                if var annotation = variable.typeAnnotation {
-                    if annotation.hasSuffix("?") {
-                        annotation.removeLast()
+        for wrapper in self.visitorWrappers {
+            for variable in wrapper.visitor.variables {
+                if let annotation = variable.typeAnnotation {
+                    var notFound = true
+                    
+                    // [OPMediaItem] contains OPMediaItem -> +1
+                    for (existingType, indegree) in indegreeMap where annotation.contains(existingType) {
+                        indegreeMap[existingType] = indegree + 1
+                        notFound = false
                     }
-                    indegreeMap[annotation, default: -1] += 1
+                    
+                    if notFound {
+                        print("no indegree of \(annotation) is initiated")
+                    }
                 }
             }
         }
         
-        var res = [String]()
-        for (k, v) in indegreeMap where v == 0 {
-//            print(k,v)
-            res.append(k)
+        var declarationsWithZeroIndegree = [String]()
+        for (type, indegree) in indegreeMap where indegree == 0 {
+            declarationsWithZeroIndegree.append(type)
         }
-        return res
+        return declarationsWithZeroIndegree
     }
-
+    
     var allClasses: [Class] {
-        self.collectorWrappers
-            .filter { !$0.collector.classes.isEmpty }
-            .flatMap { $0.collector.classes }
+        self.visitorWrappers
+            .filter { !$0.visitor.classes.isEmpty }
+            .flatMap { $0.visitor.classes }
     }
-        
+    
     var allProtocols: [Protocol] {
-        self.collectorWrappers
-            .filter { !$0.collector.protocols.isEmpty }
-            .flatMap { $0.collector.protocols }
+        self.visitorWrappers
+            .filter { !$0.visitor.protocols.isEmpty }
+            .flatMap { $0.visitor.protocols }
     }
     
     var allStructs: [Structure] {
-        self.collectorWrappers
-            .filter { !$0.collector.structures.isEmpty }
-            .flatMap { $0.collector.structures }
+        self.visitorWrappers
+            .filter { !$0.visitor.structures.isEmpty }
+            .flatMap { $0.visitor.structures }
     }
     
     var allEnums: [Enumeration] {
-        self.collectorWrappers
-            .filter { !$0.collector.enumerations.isEmpty }
-            .flatMap { $0.collector.enumerations }
+        self.visitorWrappers
+            .filter { !$0.visitor.enumerations.isEmpty }
+            .flatMap { $0.visitor.enumerations }
+    }
+    
+    var typealiases: [Typealias] {
+        self.visitorWrappers
+            .filter { !$0.visitor.typealiases.isEmpty }
+            .flatMap { $0.visitor.typealiases }
     }
 }
 
@@ -116,14 +122,19 @@ private extension SwiftProjectAnalyzer {
         "\(self.projectDirectory)/\(path)"
     }
     
-    func parseFile(path: String) throws -> DeclarationCollector {
+    func parseFile(path: String) throws -> SPASyntaxVisitor {
         let url = URL(fileURLWithPath: path)
         let source = try SyntaxParser.parse(url)
-        
-        let collector = DeclarationCollector()
+        let visitor = SPASyntaxVisitor()
+        visitor.delegate = self
         let tree = try SyntaxParser.parse(source: source.description)
-        collector.walk(tree)
-        
-        return collector
+        visitor.walk(tree)
+        return visitor
+    }
+}
+
+extension SwiftProjectAnalyzer: SPASyntaxVisitorDelegate {
+    func visitor(_ visitor: SPASyntaxVisitor, didVisit aClass: Class, cleanupContainer: SPASyntaxVisitor.SPACleanupContainer) {
+        cleanupContainer.prettyPrint()
     }
 }
