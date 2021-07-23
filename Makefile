@@ -1,6 +1,7 @@
 
 
-run: 
+run:
+	clear
 	swift build
 	swift run
 
