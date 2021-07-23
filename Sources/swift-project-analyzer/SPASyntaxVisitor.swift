@@ -28,19 +28,6 @@ final class SPASyntaxVisitor: SyntaxVisitor {
         let currentClass: Class
         let variables: [Variable]
         let functions: [Function]
-        
-        func prettyPrint() {
-            print("current class: \(self.currentClass.name)")
-            print("variables: ")
-            self.variables.forEach { variable in
-                print("name: \(variable.name) | type: \(variable.typeAnnotation ?? "Unknown")")
-            }
-            print("functions: ")
-            for f in self.functions {
-                print(f.identifier)
-            }
-            print("-----\n")
-        }
     }
     
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
@@ -66,5 +53,24 @@ final class SPASyntaxVisitor: SyntaxVisitor {
         self.delegate?.visitor(self, didVisit: currentClass, cleanupContainer: container)
         self.variables.removeAll()
         self.functions.removeAll()
+    }
+}
+
+extension SPASyntaxVisitor.SPACleanupContainer {
+    func prettyPrint(match className: String? = nil) {
+        if let className = className, self.currentClass.name != className {
+            return
+        }
+        
+        print("current class: \(self.currentClass.name)")
+        print("variables: ")
+        self.variables.forEach { variable in
+            print("name: \(variable.name) | type: \(variable.typeAnnotation ?? "Unknown")")
+        }
+        print("functions: ")
+        for f in self.functions {
+            print(f.identifier)
+        }
+        print("-----\n")
     }
 }

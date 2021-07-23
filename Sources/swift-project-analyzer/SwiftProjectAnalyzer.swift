@@ -135,6 +135,6 @@ private extension SwiftProjectAnalyzer {
 
 extension SwiftProjectAnalyzer: SPASyntaxVisitorDelegate {
     func visitor(_ visitor: SPASyntaxVisitor, didVisit aClass: Class, cleanupContainer: SPASyntaxVisitor.SPACleanupContainer) {
-        cleanupContainer.prettyPrint()
+        cleanupContainer.prettyPrint(match: "PlaybackObserver")
     }
 }
