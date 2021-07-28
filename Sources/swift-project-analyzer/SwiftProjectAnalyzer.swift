@@ -7,6 +7,7 @@ final class SwiftProjectAnalyzer {
     private let projectDirectory: String
     private let ignoreFolders: [String]
     private var visitorWrappers = Set<SPASyntaxVisitorWrapper>()
+    private let graph = SPAGraph()
     
     init(projectDirectory: String, ignoreFolders: [String]) {
         self.projectDirectory = projectDirectory
@@ -19,6 +20,13 @@ final class SwiftProjectAnalyzer {
             let wrapper = SPASyntaxVisitorWrapper(url: url, visitor: visitor)
             self.visitorWrappers.insert(wrapper)
         }
+
+        if let outputResult = try? JSONEncoder().encode(self.graph.outputJson) {
+            if let consoleOut = String(data: outputResult, encoding: .utf8) {
+                print(consoleOut)
+            }
+        }
+        
         /*
          print(allClasses.map { $0.name })
          print(allEnums.map { $0.name })
@@ -134,10 +142,11 @@ private extension SwiftProjectAnalyzer {
 }
 
 extension SwiftProjectAnalyzer: SPASyntaxVisitorDelegate {
-    func visitor(_ visitor: SPASyntaxVisitor, didVisit aClass: Class, cleanupContainer: SPASyntaxVisitor.SPACleanupContainer) {
-        if cleanupContainer.currentClass.name == "PlaybackObserver" {
-            print(cleanupContainer.uxfElement)
-        }
-//        cleanupContainer.prettyPrint(match: "PlaybackObserver")
+    func visitor(_ visitor: SPASyntaxVisitor, didVisit aClass: Class, classContainer: SPAClassContainer) {
+        self.graph.insert(classContainer.node)
+    }
+    
+    func visitor(_ visitor: SPASyntaxVisitor, didVisit aProtocol: Protocol, protocolContainer: SPAProtocolContainer) {
+        self.graph.insert(protocolContainer.node)
     }
 }
