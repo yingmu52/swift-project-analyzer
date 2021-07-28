@@ -8,6 +8,8 @@ struct SPAProtocolContainer {
 
 extension SPAProtocolContainer {
     var node: SPAGraphNode {
-        SPAGraphNode(name: self.currentProtocol.name)
+        .init(name: self.currentProtocol.name,
+              label: self.currentProtocol.name,
+              id: self.currentProtocol.name)
     }
 }
