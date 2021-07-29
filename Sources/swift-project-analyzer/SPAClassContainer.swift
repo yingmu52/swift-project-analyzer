@@ -35,7 +35,7 @@ extension SPAClassContainer {
                 return nil
             }
         return .init(name: self.currentClass.name,
-                     label: self.currentClass.name,
+                     label: "Class",
                      id: self.currentClass.name,
                      children: children)
     }

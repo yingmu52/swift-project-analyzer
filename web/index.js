@@ -14,10 +14,10 @@ svg
     viewBox: "-0 -5 10 10",
     refX: 13,
     refY: 0,
-    orient: "scroll",
+    orient: "auto",
     markerWidth: 13,
     markerHeight: 13,
-    overflow: "scroll",
+    overflow: "auto",
   })
   .append("svg:path")
   .attr("d", "M 0,-5 L 10 ,0 L 0,5")
@@ -107,7 +107,7 @@ function update(links, nodes) {
     .attr("class", "node")
     .call(
       d3.drag().on("start", dragstarted).on("drag", dragged)
-      .on("end", dragended)
+      // .on("end", dragended)
     );
 
   node
@@ -117,16 +117,12 @@ function update(links, nodes) {
       return colors(i);
     });
 
-  node.append("title").text(function (d) {
-    return d.id;
-  });
+  node.append("title").text(d => d.id);
 
   node
     .append("text")
     .attr("dy", -3)
-    .text(function (d) {
-      return d.name + ":" + d.label;
-    });
+    .text(d => `${d.label}: ${d.name}`);
 
   simulation.nodes(nodes).on("tick", ticked);
 
@@ -189,8 +185,8 @@ function dragged(d) {
   d.fy = d3.event.y;
 }
 
-function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = undefined;
-    d.fy = undefined;
-}
+// function dragended(d) {
+//     if (!d3.event.active) simulation.alphaTarget(0);
+//     d.fx = undefined;
+//     d.fy = undefined;
+// }

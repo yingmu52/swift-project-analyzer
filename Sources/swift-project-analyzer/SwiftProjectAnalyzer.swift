@@ -13,18 +13,17 @@ final class SwiftProjectAnalyzer {
         self.projectDirectory = projectDirectory
         self.ignoreFolders = ignoreFolders
     }
-
+    
     func start() throws {
         for url in self.subPaths {
             let visitor = try parseFile(path: self.getAbsolutePath(url))
             let wrapper = SPASyntaxVisitorWrapper(url: url, visitor: visitor)
             self.visitorWrappers.insert(wrapper)
         }
-
-        if let outputResult = try? JSONEncoder().encode(self.graph.outputJson) {
-            if let consoleOut = String(data: outputResult, encoding: .utf8) {
-                print(consoleOut)
-            }
+        
+        let outputResult = try JSONEncoder().encode(self.graph.outputJson)
+        if let consoleOut = String(data: outputResult, encoding: .utf8) {
+            print(consoleOut) ///  this works with `swift run > web/graph.json`
         }
     }
 }
