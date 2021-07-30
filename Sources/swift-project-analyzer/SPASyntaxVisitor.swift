@@ -58,8 +58,7 @@ final class SPASyntaxVisitor: SyntaxVisitor {
                                            variables: self.variables,
                                            functions: self.functions)
         self.delegate?.visitor(self, didCollect: container)
-        self.variables.removeAll()
-        self.functions.removeAll()
+        self.clear()
     }
     
     override func visitPost(_ node: ClassDeclSyntax) {
@@ -68,8 +67,7 @@ final class SPASyntaxVisitor: SyntaxVisitor {
                                             variables: self.variables,
                                             functions: self.functions)
         self.delegate?.visitor(self, didCollect: container)
-        self.variables.removeAll()
-        self.functions.removeAll()
+        self.clear()
     }
     
     override func visitPost(_ node: ProtocolDeclSyntax) {
@@ -78,6 +76,15 @@ final class SPASyntaxVisitor: SyntaxVisitor {
                                              variables: self.variables,
                                              functions: self.functions)
         self.delegate?.visitor(self, didCollect: container)
+        self.clear()
+    }
+}
+
+private extension SPASyntaxVisitor {
+    func clear() {
+        self.classes.removeAll()
+        self.protocols.removeAll()
+        self.structures.removeAll()
         self.variables.removeAll()
         self.functions.removeAll()
     }
