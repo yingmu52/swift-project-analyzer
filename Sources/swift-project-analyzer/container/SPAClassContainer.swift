@@ -5,8 +5,3 @@ struct SPAClassContainer: SPATypeContainer {
     let variables: [Variable]
     let functions: [Function]
 }
-
-extension SPAClassContainer {
-   
-}
-
