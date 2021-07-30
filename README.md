@@ -1,3 +1,6 @@
 # swift-project-analyzer
 
-A description of this package.
+- `make run`
+- `cd web && yarn install && yarn start`
+
+
