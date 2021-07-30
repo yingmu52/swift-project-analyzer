@@ -1,11 +1,27 @@
-import React from 'react';
-import Tree from 'react-d3-tree';
-import treeData from './treeData.json'
+import React from "react";
+import { Graph } from "react-d3-graph";
+import config from "./config";
+import data from "./graph.json";
+
+// const data = {
+//   nodes: [{ id: "Harry" }, { id: "Sally" }, { id: "Alice" }],
+//   links: [
+//     { source: "Harry", target: "Sally" },
+//     { source: "Harry", target: "Alice" },
+//   ],
+// };
 
 export default function App() {
+  const onClickNode = function (nodeId) {};
+  const onClickLink = function (source, target) {};
+
   return (
-    <div id="treeWrapper" style={{ width: '100vw', height: '100vh' }}>
-      <Tree data={treeData} />
-    </div>
+    <Graph
+      id="graph-id" // id is mandatory
+      data={data}
+      config={config}
+      onClickNode={onClickNode}
+      onClickLink={onClickLink}
+    />
   );
 }

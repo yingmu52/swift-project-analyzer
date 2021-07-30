@@ -2,7 +2,7 @@
 run:
 	clear
 	swift build
-	swift run > web/graph.json
+	swift run > web/src/graph.json
 #	swift run | python -m json.tool
 
 local:

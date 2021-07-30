@@ -1,17 +1,14 @@
 
 struct SPAOutputJson: Encodable {
-    struct Node: Encodable {
-        let name: String
-        let label: String
+    struct Node: Encodable, Hashable {
         let id: String
     }
     
-    struct Link: Encodable {
+    struct Link: Encodable, Hashable {
         let source: String
         let target: String
-        let type = "KNOWS"
     }
-    let nodes: [Node]
-    let links: [Link]
+    let nodes: Set<Node>
+    let links: Set<Link>
 }
 

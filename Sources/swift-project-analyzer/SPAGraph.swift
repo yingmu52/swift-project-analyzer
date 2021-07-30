@@ -1,25 +1,10 @@
 
-class SPAGraphNode {
-    let name: String
-    let label: String
+struct SPAGraphNode {
     let id: String
-    
     var children: [SPAGraphNode] = []
     
-    init(name: String, label: String, id: String, children: [SPAGraphNode] = []) {
-        self.name = name
-        self.label = label
-        self.id = id
-        self.children = children
-    }
-    
     var outputNode: SPAOutputJson.Node {
-        .init(name: self.name, label: self.label, id: self.id)
-    }
-    var outputLinks: [SPAOutputJson.Link] {
-        self.children.map { childNode in
-            .init(source: self.outputNode.id, target: childNode.outputNode.id)
-        }
+        .init(id: self.id)
     }
 }
 
@@ -45,31 +30,18 @@ class SPAGraph {
     }
     
     var outputJson: SPAOutputJson {
-        var nodes = [SPAOutputJson.Node]()
-        var links = [SPAOutputJson.Link]()
+        var nodes = Set<SPAOutputJson.Node>()
+        var links = Set<SPAOutputJson.Link>()
         
         var stack = self.nodes
         while !stack.isEmpty {
-            let first = stack.removeFirst()
-            nodes.append(first.outputNode)
-            links += first.outputLinks
-        }
-        
-        // create source if needed
-        
-        var sourceSet = Set(nodes.map { $0.id })
-        
-        var filterLinks: [SPAOutputJson.Link] = []
-        
-        for link in links {
-            if !sourceSet.contains(link.source) {
-                nodes.append(.init(name: link.source, label: "Missing", id: link.source))
-                sourceSet.insert(link.source)
-            }
-
-            if !sourceSet.contains(link.target) {
-                nodes.append(.init(name: link.target, label: "Missing", id: link.target))
-                sourceSet.insert(link.target)
+            let parentNode = stack.removeFirst()
+            nodes.insert(parentNode.outputNode)
+            
+            for childNode in parentNode.children {
+                nodes.insert(childNode.outputNode)
+                links.insert(.init(source: parentNode.outputNode.id, target: childNode.outputNode.id))
+                stack.append(childNode)
             }
         }
         

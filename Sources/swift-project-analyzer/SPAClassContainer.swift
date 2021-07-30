@@ -30,13 +30,10 @@ extension SPAClassContainer {
         let children = self.variables
             .compactMap { variable -> SPAGraphNode? in
                 if let type = variable.typeAnnotation?.replacingOccurrences(of: "?", with: "") { // ? for optional type
-                    return .init(name: type, label: type, id: type)
+                    return .init(id: type)
                 }
                 return nil
             }
-        return .init(name: self.currentClass.name,
-                     label: "Class",
-                     id: self.currentClass.name,
-                     children: children)
+        return .init(id: self.currentClass.name, children: children)
     }
 }
