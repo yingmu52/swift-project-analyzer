@@ -17,22 +17,7 @@ class SPAGraph {
     private(set) var nodes: [SPAGraphNode] = []
     
     func insert(_ newNode: SPAGraphNode) {
-        var stack = self.nodes
-        var inserted = false
-        
-        while !stack.isEmpty {
-            var node = stack.removeFirst()
-            if node.id == newNode.id, node.children.isEmpty {
-                node = newNode
-                inserted = true
-                break
-            }
-            stack += node.children
-        }
-        
-        if !inserted {
-            self.nodes.append(newNode)
-        }
+        self.nodes.append(newNode)
     }
     
     var outputJson: SPAOutputJson {
