@@ -1,10 +1,8 @@
 
-let projectDir = "/Users/xinyi/projects/OnePlayer.iOS"
+let projectDir = "/Users/xinyi/projects/swift-syntax"
 let ignoreFolders = [
-    "src/OnePlayer.Example",
-    "src/OnePlayerCore/Tests",
-    "src/OnePlayerTelemetry/Tests",
-    "src/OnePlayerSVE"
+    "Tests",
+    "lit_tests"
 ]
 
 let analyzer = SwiftProjectAnalyzer(projectDirectory: projectDir, ignoreFolders: ignoreFolders)
