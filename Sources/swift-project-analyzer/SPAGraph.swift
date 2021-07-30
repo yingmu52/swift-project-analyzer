@@ -1,8 +1,13 @@
 
-struct SPAGraphNode {
+class SPAGraphNode {
     let id: String
-    var children: [SPAGraphNode] = []
+    var children: [SPAGraphNode]
     
+    init(id: String, children: [SPAGraphNode] = []) {
+        self.id = id
+        self.children = children
+    }
+
     var outputNode: SPAOutputJson.Node {
         .init(id: self.id)
     }
@@ -16,12 +21,13 @@ class SPAGraph {
         var inserted = false
         
         while !stack.isEmpty {
-            var aNode = stack.removeFirst()
-            if aNode.id == newNode.id, aNode.children.isEmpty {
-                aNode = newNode
+            var node = stack.removeFirst()
+            if node.id == newNode.id, node.children.isEmpty {
+                node = newNode
                 inserted = true
+                break
             }
-            stack += aNode.children
+            stack += node.children
         }
         
         if !inserted {

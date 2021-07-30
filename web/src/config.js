@@ -7,7 +7,7 @@ export default {
   freezeAllDragEvents: false,
   width: window.innerWidth,
   height: window.innerHeight,
-  highlightDegree: 2,
+  highlightDegree: 1,
   highlightOpacity: 0.2,
   linkHighlightBehavior: true,
   maxZoom: 12,
@@ -43,6 +43,7 @@ export default {
     symbolType: "circle",
   },
   link: {
+    type: "CURVE_SMOOTH",
     color: "lightgray",
     fontColor: "black",
     fontSize: 8,

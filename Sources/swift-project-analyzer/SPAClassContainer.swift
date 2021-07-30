@@ -25,15 +25,8 @@ extension SPAClassContainer {
     }
 }
 
-extension SPAClassContainer {
-    var node: SPAGraphNode {
-        let children = self.variables
-            .compactMap { variable -> SPAGraphNode? in
-                if let type = variable.typeAnnotation?.replacingOccurrences(of: "?", with: "") { // ? for optional type
-                    return .init(id: type)
-                }
-                return nil
-            }
-        return .init(id: self.currentClass.name, children: children)
+extension SPAClassContainer: SPAGraphNodeConvertable {
+    var id: String {
+        self.currentClass.name
     }
 }

@@ -6,8 +6,8 @@ struct SPAProtocolContainer {
     let functions: [Function]
 }
 
-extension SPAProtocolContainer {
-    var node: SPAGraphNode {
-        .init(id: self.currentProtocol.name)
+extension SPAProtocolContainer: SPAGraphNodeConvertable {
+    var id: String {
+        self.currentProtocol.name
     }
 }
