@@ -65,11 +65,7 @@ private extension SwiftProjectAnalyzer {
 }
 
 extension SwiftProjectAnalyzer: SPASyntaxVisitorDelegate {
-    func visitor(_ visitor: SPASyntaxVisitor, didVisit aClass: Class, classContainer: SPAClassContainer) {
-        self.graph.insert(classContainer.node)
-    }
-    
-    func visitor(_ visitor: SPASyntaxVisitor, didVisit aProtocol: Protocol, protocolContainer: SPAProtocolContainer) {
-        self.graph.insert(protocolContainer.node)
+    func visitor<T: SPATypeContainer>(_ visitor: SPASyntaxVisitor, didCollect typeContainer: T) {
+        self.graph.insert(typeContainer.node)
     }
 }

@@ -4,8 +4,7 @@ import SwiftSemantics
 import struct SwiftSemantics.Protocol
 
 protocol SPASyntaxVisitorDelegate: AnyObject {
-    func visitor(_ visitor: SPASyntaxVisitor, didVisit aClass: Class, classContainer: SPAClassContainer)
-    func visitor(_ visitor: SPASyntaxVisitor, didVisit aProtocol: Protocol, protocolContainer: SPAProtocolContainer)
+    func visitor<T: SPATypeContainer>(_ visitor: SPASyntaxVisitor, didCollect typeContainer: T)
 }
 
 final class SPASyntaxVisitor: SyntaxVisitor {
@@ -40,29 +39,45 @@ final class SPASyntaxVisitor: SyntaxVisitor {
         return .skipChildren
     }
     
+    override func visit(_ node: StructDeclSyntax) -> SyntaxVisitorContinueKind {
+        self.structures.append(Structure(node))
+        return .visitChildren
+    }
+    
     override func visit(_ node: ProtocolDeclSyntax) -> SyntaxVisitorContinueKind {
         protocols.append(Protocol(node))
         return .visitChildren
     }
+
     
     // MARK: - Post Visit
     
+    override func visitPost(_ node: StructDeclSyntax) {
+        let currentStruct = Structure(node)
+        let container = SPAStructContainer(currentType: currentStruct,
+                                           variables: self.variables,
+                                           functions: self.functions)
+        self.delegate?.visitor(self, didCollect: container)
+        self.variables.removeAll()
+        self.functions.removeAll()
+    }
+    
     override func visitPost(_ node: ClassDeclSyntax) {
         let currentClass = Class(node)
-        let container = SPAClassContainer(currentClass: currentClass,
+        let container = SPAClassContainer(currentType: currentClass,
                                             variables: self.variables,
                                             functions: self.functions)
-        self.delegate?.visitor(self, didVisit: currentClass, classContainer: container)
+        self.delegate?.visitor(self, didCollect: container)
         self.variables.removeAll()
         self.functions.removeAll()
     }
     
     override func visitPost(_ node: ProtocolDeclSyntax) {
         let currentProtocol = Protocol(node)
-        let container = SPAProtocolContainer(currentProtocol: currentProtocol,
+        let container = SPAProtocolContainer(currentType: currentProtocol,
                                              variables: self.variables,
                                              functions: self.functions)
-        self.delegate?.visitor(self, didVisit: currentProtocol, protocolContainer: container)
+        self.delegate?.visitor(self, didCollect: container)
         self.variables.removeAll()
         self.functions.removeAll()
     }
