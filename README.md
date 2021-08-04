@@ -12,3 +12,6 @@ I run this project against [swift-syntax](https://github.com/apple/swift-syntax/
 
 ![example](swift-syntax-result.png)
 
+# Todo 
+
+ - Build Connections from protocol to its conforming type
